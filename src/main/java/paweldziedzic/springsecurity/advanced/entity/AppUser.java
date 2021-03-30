@@ -5,12 +5,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 public class AppUser implements UserDetails {
@@ -23,9 +22,10 @@ public class AppUser implements UserDetails {
 
     private String password;
 
-    private boolean isAdmin;
-
     private boolean isEnabled;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<String> roles = new HashSet<>();
 
     public void setEnabled(boolean enabled) {
         isEnabled = enabled;
@@ -39,16 +39,13 @@ public class AppUser implements UserDetails {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+
+    public Set<String> getRoles() {
+        return roles;
     }
 
-    public void setAdmin(boolean admin) {
-        isAdmin = admin;
-    }
-
-    public boolean isAdmin() {
-        return isAdmin;
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
     }
 
     @Override
@@ -75,19 +72,23 @@ public class AppUser implements UserDetails {
         this.username = username;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(isAdmin)
-            return Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        else
-            return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
-    }
-
     public String getPassword() {
         return password;
     }
 
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return getRoles().stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toSet());
     }
 }

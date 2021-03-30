@@ -1,6 +1,7 @@
 package paweldziedzic.springsecurity.advanced;
 
 
+import org.springframework.boot.autoconfigure.quartz.QuartzProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -9,6 +10,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+
+import javax.sql.DataSource;
 
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -20,8 +25,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private UserDetailsService userDetailsService;
 
-    public WebSecurityConfig(UserDetailsService userDetailsService) {
+    private DataSource dataSource;
+
+    public WebSecurityConfig(UserDetailsService userDetailsService, DataSource dataSource) {
         this.userDetailsService = userDetailsService;
+        this.dataSource = dataSource;
     }
 
     @Override
@@ -31,14 +39,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeRequests()
+        http.authorizeRequests()
                 .antMatchers("/forAdmin").hasRole("ADMIN")
                 .antMatchers("/forUser").hasRole("USER")
                 .antMatchers("/signup").permitAll()
                 .and()
                 .formLogin().loginPage("/login").permitAll().defaultSuccessUrl("/forUser")
                 .and()
+                .rememberMe().tokenRepository(persistentTokenRepository())
+                .and()
                 .logout();
+    }
+
+    @Bean
+    public PersistentTokenRepository persistentTokenRepository() {
+        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+        tokenRepository.setDataSource(dataSource);
+        return tokenRepository;
     }
 }

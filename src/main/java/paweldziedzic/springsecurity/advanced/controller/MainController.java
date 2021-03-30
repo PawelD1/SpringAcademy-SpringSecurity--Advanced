@@ -1,35 +1,37 @@
 package paweldziedzic.springsecurity.advanced.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import paweldziedzic.springsecurity.advanced.entity.AppUser;
+import paweldziedzic.springsecurity.advanced.repo.VerificationTokenRepo;
 import paweldziedzic.springsecurity.advanced.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@RestController
+@Controller
 public class MainController {
 
 
     private UserService userService;
+    private VerificationTokenRepo verificationTokenRepo;
 
-    public MainController(UserService userService) {
+    @Autowired
+    public MainController(UserService userService, VerificationTokenRepo verificationTokenRepo) {
         this.userService = userService;
+        this.verificationTokenRepo = verificationTokenRepo;
     }
 
-//    @RequestMapping("/login")
-//    public String login() {
-//        return "loginOld";
-//    }
-    @RequestMapping(value="/login", method=RequestMethod.POST)
-    public String login(@RequestBody AppUser appUser) {
-        String username= appUser.getUsername();
-        return userService.signInUser(username);
+    @RequestMapping("/login")
+    public String login() {
+        return "login";
     }
 
     @RequestMapping(value="/logout", method = RequestMethod.GET)
@@ -47,9 +49,10 @@ public class MainController {
     }
 
     @RequestMapping("/register")
-    public ModelAndView register(AppUser user, HttpServletRequest request, Model model) {
-        boolean isAdmin = user.isAdmin();
-        model.addAttribute("isAdmin", isAdmin);
+    public ModelAndView register(AppUser user, HttpServletRequest request, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()){
+            return new ModelAndView("redirect:/signup");
+        }
         userService.addNewUser(user, request);
         return new ModelAndView("redirect:/login");
     }
@@ -57,6 +60,12 @@ public class MainController {
     @RequestMapping("/verify-token")
     public ModelAndView register(@RequestParam String token) {
         userService.verifyToken(token);
+        return new ModelAndView("redirect:/login");
+    }
+
+    @RequestMapping("/verify-token-new-admin")
+    public ModelAndView verifyAdmin(@RequestParam String token){
+        userService.verifyAdmin(token);
         return new ModelAndView("redirect:/login");
     }
 }

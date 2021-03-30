@@ -10,10 +10,9 @@
     <input type="text" id="username" name="username"/> <br />
     <label for="password">Password</label>:
     <input type="password" id="password" name="password" /> <br />
-<!--    <label for="isAdmin">isAdmin</label>:-->
-<!--    <input type="checkbox" id="isAdmin" name="isAdmin"-->
-<!--           th:checked="${isAdmin}" th:value="${isAdmin}" onclick="isAdmin= this.checked"/> <br />-->
-    <input type="submit" value="Sing Up" />
+    <input type="radio" name="roles" value="ROLE_USER" checked /> User <br/>
+    <input type="radio" name="roles" value="ROLE_ADMIN, ROLE_USER" /> Admin <br/>
+    <input type="submit" value="Sign Up" />
 </form>
 </body>
 </html>
