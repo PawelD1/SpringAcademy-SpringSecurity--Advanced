@@ -1,0 +1,3 @@
+# SpringAcademy-SpringSecurity--Advanced
+Create a registration form with all its support under which it will be possible to register a new user with the User or Admin role. The registrant chooses whether he wants to have the User or Admin role. The user is always required to confirm his email. When the user selects the Administrator role in the registration form, such information is sent to the main administrator of the application by e-mail. Until the main admin clicks the activation link, the user applying for the Admin role will only have the User role.
+Make sure that the database does not leave garbage after activated tokens and also include data validation for the form.
