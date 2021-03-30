@@ -60,7 +60,6 @@ public class UserService {
                 "/verify-token?token="+token;
 
         try {
-            String  olduser2 = newUser.getUsername();
             mailSenderService.sendMail(newUser.getUsername(), "Verification Token", url, false);
             if(newUser.getRoles().contains("ROLE_ADMIN")) {
                 VerificationAdmin verificationAdmin = new VerificationAdmin(newUser, token);
@@ -75,10 +74,8 @@ public class UserService {
                         false);
 
                 appUserRepo.findByUsername(newUser.getUsername()).get().getRoles().remove("ROLE_ADMIN");
-                String olduser = newUser.getUsername();
                 appUserRepo.save(newUser);
             }
-
         } catch (MessagingException e) {
             e.printStackTrace();
         }
@@ -102,8 +99,4 @@ public class UserService {
         verificationAdminRepo.deleteByValue(token);
         LOGGER.info("USED TOKEN IS NOT NECESSARY ANYMORE");
     }
-
-
-
-
 }

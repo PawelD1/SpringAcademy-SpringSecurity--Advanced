@@ -1,7 +1,5 @@
 package paweldziedzic.springsecurity.advanced;
 
-
-import org.springframework.boot.autoconfigure.quartz.QuartzProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
